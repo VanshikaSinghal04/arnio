@@ -1063,6 +1063,7 @@ DataQualityReport(
 | **v1.3** | Chunked / streaming processing · Parquet & JSON readers | 📋 Planned |
 | **v1.4** | Parallel column processing · SIMD string operations | 💭 Exploring |
 
+> For CLI command reference and examples, see [CLI_REFERENCE.md](CLI_REFERENCE.md).
 <br>
 
 ---
