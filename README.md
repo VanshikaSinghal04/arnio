@@ -211,59 +211,34 @@ They follow a simple workflow:
 
 ### 🔹 Interoperability Examples
 
-- **Arnio + pandas**  
-  Clean and normalize messy tabular data using Arnio, then analyze it using pandas.  
-  Run:
-````bash
-  python examples/arnio_pandas_example.py
-
-- **Arnio + NumPy**
-Prepare numeric data safely using Arnio, then perform computations using NumPy.
-Run:
-'''bash
-python examples/arnio_numpy_example.py
-````
-
-Replace it with this fixed version:
-
-````markdown
-### 🔹 Interoperability Examples
-
-- **Arnio + pandas**  
-  Clean and normalize messy tabular data using Arnio, then analyze it using pandas.  
+- **Arnio + pandas**
+  Clean and normalize messy tabular data using Arnio, then analyze it using pandas.
   Run:
 ```bash
   python examples/arnio_with_pandas.py
 ```
 
-- **Arnio + NumPy**  
-  Prepare numeric data safely using Arnio, then perform computations using NumPy.  
+- **Arnio + NumPy**
+  Prepare numeric data safely using Arnio, then perform computations using NumPy.
   Run:
 ```bash
   python examples/arnio_with_numpy.py
 ```
 
-- **Arnio + scikit-learn**  
-  Prepare messy data with Arnio, then train a model with scikit-learn.  
+- **Arnio + scikit-learn**
+  Prepare messy data with Arnio, then train a model with scikit-learn.
   Run:
 ```bash
   python examples/arnio_with_sklearn.py
 ```
 
-- **Arnio + DuckDB**  
-  Clean data with Arnio, then run SQL queries using DuckDB.  
+- **Arnio + DuckDB**
+  Clean data with Arnio, then run SQL queries using DuckDB.
   Run:
 ```bash
   python examples/arnio_with_duckdb.py
 ```
-````
 
-**What was fixed:**
-- Closed the unclosed ` ```bash ` fence in the pandas block
-- Replaced `'''bash` with ` ```bash ` in the NumPy block
-- Updated file names from old names to new ones
-- Added sklearn and duckdb entries
-- Fixed indentation
 
 
 <br>
