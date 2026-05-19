@@ -139,6 +139,37 @@ class DataQualityReport:
             ]
         )
 
+    def to_markdown(self, *, max_columns: int | None = None) -> str:
+        """Return a Markdown table summarising the column profiles.
+
+        Column names and warning text are escaped so that ``|`` and
+        newlines do not break the table.
+        """
+
+        def _escape(text: str) -> str:
+            text = str(text)
+            text = text.replace("\n", "<br>")
+            text = text.replace("|", "\\|")
+            return text
+
+        header = "| Column | dtype | nulls | unique | warnings |"
+        separator = "|---|---|---|---|---|"
+        rows = [header, separator]
+
+        columns = list(self.columns.values())
+        if max_columns is not None:
+            columns = columns[:max_columns]
+
+        for col in columns:
+            name = _escape(col.name)
+            dtype = _escape(col.dtype)
+            nulls = f"{col.null_count} ({col.null_ratio:.1%})"
+            unique = f"{col.unique_count} ({col.unique_ratio:.1%})"
+            warnings = _escape(", ".join(col.warnings) if col.warnings else "—")
+            rows.append(f"| {name} | {dtype} | {nulls} | {unique} | {warnings} |")
+
+        return "\n".join(rows)
+
 
 def profile(frame: ArFrame, *, sample_size: int = 5) -> DataQualityReport:
     """Profile data quality for an ArFrame.

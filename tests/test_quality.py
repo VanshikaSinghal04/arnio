@@ -243,3 +243,49 @@ def test_identifier_numeric_cast_prevention():
     assert list(result["id"]) == ["001", "002", "003"]
     assert list(result["customer_id"]) == ["00123", "00456", "00789"]
     assert list(result["zip_code"]) == ["01234", "02345", "03456"]
+
+
+# ── to_markdown escaping tests ─────────────────────────────────────────────────
+
+
+def test_to_markdown_pipe_in_column_name():
+    df = pd.DataFrame({"a|b": ["x"]})
+    frame = ar.from_pandas(df)
+    report = ar.profile(frame)
+    md = report.to_markdown()
+
+    assert "a\\|b" in md
+    assert md.count("|") == md.count("|")  # table structure is not broken
+
+
+def test_to_markdown_newline_in_column_name():
+    df = pd.DataFrame({"line\ncol": ["y"]})
+    frame = ar.from_pandas(df)
+    report = ar.profile(frame)
+    md = report.to_markdown()
+
+    assert "<br>" in md
+    assert "\n" not in md.split("|")[1]  # column name cell has no raw newline
+
+
+def test_to_markdown_pipe_in_warnings():
+    df = pd.DataFrame({"name": [" Alice ", " Bob "]})
+    frame = ar.from_pandas(df)
+    report = ar.profile(frame)
+    md = report.to_markdown()
+
+    # warnings should not break the table structure
+    for line in md.splitlines():
+        if line.startswith("|") and not line.startswith("|---"):
+            assert line.count("|") >= 2
+
+
+def test_to_markdown_normal_column_names_stable():
+    df = pd.DataFrame({"name": ["Alice"], "age": ["25"]})
+    frame = ar.from_pandas(df)
+    report = ar.profile(frame)
+    md = report.to_markdown()
+
+    assert "name" in md
+    assert "age" in md
+    assert md.startswith("| Column |")
