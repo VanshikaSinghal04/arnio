@@ -5,6 +5,7 @@
 #include "arnio/cleaning.h"
 #include "arnio/column.h"
 #include "arnio/csv_reader.h"
+#include "arnio/csv_writer.h"
 #include "arnio/frame.h"
 #include "arnio/types.h"
 
@@ -219,7 +220,10 @@ PYBIND11_MODULE(_arnio_cpp, m) {
         .def_readwrite("usecols", &CsvConfig::usecols)
         .def_readwrite("nrows", &CsvConfig::nrows)
         .def_readwrite("encoding", &CsvConfig::encoding)
-        .def_readwrite("trim_headers", &CsvConfig::trim_headers);
+        .def_readwrite("trim_headers", &CsvConfig::trim_headers)
+        .def_readwrite("thousands_separator", &CsvConfig::thousands_separator)
+        .def_readwrite("sample_size", &CsvConfig::sample_size)
+        .def_readwrite("null_values", &CsvConfig::null_values);
 
     py::class_<CsvReader>(m, "CsvReader")
         .def(py::init<const CsvConfig&>(), py::arg("config") = CsvConfig{})
@@ -240,6 +244,17 @@ PYBIND11_MODULE(_arnio_cpp, m) {
             }
             return schema;
         });
+
+    // --- CsvWriter ---
+    py::class_<CsvWriteConfig>(m, "CsvWriteConfig")
+        .def(py::init<>())
+        .def_readwrite("delimiter", &CsvWriteConfig::delimiter)
+        .def_readwrite("write_header", &CsvWriteConfig::write_header)
+        .def_readwrite("line_terminator", &CsvWriteConfig::line_terminator);
+
+    py::class_<CsvWriter>(m, "CsvWriter")
+        .def(py::init<const CsvWriteConfig&>(), py::arg("config") = CsvWriteConfig{})
+        .def("write", &CsvWriter::write);
 
     // --- Cleaning functions ---
     m.def(
@@ -298,5 +313,16 @@ PYBIND11_MODULE(_arnio_cpp, m) {
 
     m.def("rename_columns", &rename_columns, py::arg("frame"), py::arg("mapping"));
 
-    m.def("cast_types", &cast_types, py::arg("frame"), py::arg("mapping"));
+    m.def("cast_types", &cast_types, py::arg("frame"), py::arg("mapping"),
+          py::arg("coerce_invalid") = false);
+
+    m.def(
+        "clip_numeric",
+        [](const Frame& frame, std::optional<double> lower, std::optional<double> upper,
+           const std::optional<std::vector<std::string>>& subset) {
+            py::gil_scoped_release release;
+            return clip_numeric(frame, lower, upper, subset);
+        },
+        py::arg("frame"), py::arg("lower") = std::nullopt, py::arg("upper") = std::nullopt,
+        py::arg("subset") = std::nullopt);
 }
