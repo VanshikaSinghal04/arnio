@@ -247,7 +247,6 @@ def test_identifier_numeric_cast_prevention():
 
 # ── to_markdown escaping tests ─────────────────────────────────────────────────
 
-
 def test_to_markdown_pipe_in_column_name():
     df = pd.DataFrame({"a|b": ["x"]})
     frame = ar.from_pandas(df)
@@ -255,7 +254,6 @@ def test_to_markdown_pipe_in_column_name():
     md = report.to_markdown()
 
     assert "a\\|b" in md
-    assert md.count("|") == md.count("|")  # table structure is not broken
 
 
 def test_to_markdown_newline_in_column_name():
@@ -265,19 +263,18 @@ def test_to_markdown_newline_in_column_name():
     md = report.to_markdown()
 
     assert "<br>" in md
-    assert "\n" not in md.split("|")[1]  # column name cell has no raw newline
+    assert "line\ncol" not in md
 
 
 def test_to_markdown_pipe_in_warnings():
-    df = pd.DataFrame({"name": [" Alice ", " Bob "]})
+    df = pd.DataFrame({"a|b": [" x "]})
     frame = ar.from_pandas(df)
     report = ar.profile(frame)
     md = report.to_markdown()
 
-    # warnings should not break the table structure
     for line in md.splitlines():
-        if line.startswith("|") and not line.startswith("|---"):
-            assert line.count("|") >= 2
+        assert "a|b" not in line
+        assert "a\\|b" in line or "---" in line or "Column" in line
 
 
 def test_to_markdown_normal_column_names_stable():
@@ -286,6 +283,6 @@ def test_to_markdown_normal_column_names_stable():
     report = ar.profile(frame)
     md = report.to_markdown()
 
-    assert "name" in md
-    assert "age" in md
+    assert "| name |" in md
+    assert "| age |" in md
     assert md.startswith("| Column |")
