@@ -1788,3 +1788,44 @@ def test_quality_gate_markdown_escapes_pipe_characters():
     assert r"cat\|egory" in md
     assert r"pipe\|warning" in md
     assert "| col|name |" not in md
+
+
+def test_to_markdown_pipe_in_column_name():
+    df = pd.DataFrame({"a|b": ["x"]})
+    frame = ar.from_pandas(df)
+    report = ar.profile(frame)
+    md = report.to_markdown()
+
+    assert "a\\|b" in md
+
+
+def test_to_markdown_newline_in_column_name():
+    df = pd.DataFrame({"line\ncol": ["y"]})
+    frame = ar.from_pandas(df)
+    report = ar.profile(frame)
+    md = report.to_markdown()
+
+    assert "<br>" in md
+    assert "line\ncol" not in md
+
+
+def test_to_markdown_pipe_in_warnings():
+    df = pd.DataFrame({"a|b": [" x "]})
+    frame = ar.from_pandas(df)
+    report = ar.profile(frame)
+    md = report.to_markdown()
+
+    for line in md.splitlines():
+        assert "a|b" not in line
+        assert "a\\|b" in line or "---" in line or "Name" in line or "#" in line
+
+
+def test_to_markdown_normal_column_names_stable():
+    df = pd.DataFrame({"name": ["Alice"], "age": ["25"]})
+    frame = ar.from_pandas(df)
+    report = ar.profile(frame)
+    md = report.to_markdown()
+
+    assert "| name |" in md
+    assert "| age |" in md
+    assert "# Data Quality Report" in md
